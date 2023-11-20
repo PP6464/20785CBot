@@ -67,7 +67,18 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	if 
+	prevcount=0
+	while (1){
+		status = pros::screen_touch_status();
+		if status.press_count!=prevcount{
+			Rightdrive.move_voltage(12000);
+			Leftdrive.move_voltage(12000);
+  			pros::delay(1000); // Move at max voltage for 1 second
+  			Rightdrive.move_voltage(0);
+			Leftdrive.move_voltage(0);
+			prevcount=status.press_count;
+		}
+	}
 }
 
 /**
