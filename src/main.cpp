@@ -66,7 +66,9 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	if 
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -83,15 +85,14 @@ void autonomous() {}
  */
 void opcontrol() {
 	Controller master(E_CONTROLLER_MASTER);
-	list<Motor> left_wheels;
-	list<Motor> right_wheels;
-
-	for (auto i : LEFT_WHEEL_PORTS) {
-		left_wheels.push_back(Motor(i));
-	}
-	for (auto i : RIGHT_WHEEL_PORTS) {
-		right_wheels.push_back(Motor(i));
-	}
+	pros::Motor lhs_1 (1,1,0); //port, internal gearing (1=green,2=blue), reverse
+  	pros::Motor lhs_2 (2,1,0);
+	pros::Motor lhs_3 (3,1,1);
+  	pros::Motor_Group Leftdrive ({lhs_1,lhs_2,lhs_3});
+	pros::Motor rhs_1 (4,1,1); 
+  	pros::Motor rhs_2 (5,1,1);
+	pros::Motor rhs_3 (6,1,0);
+  	pros::Motor_Group Rightdrive ({lhs_1,lhs_2,lhs_3});
 
 	while (true) {
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
