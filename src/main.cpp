@@ -96,28 +96,19 @@ void autonomous() {
  */
 void opcontrol() {
 	Controller master(E_CONTROLLER_MASTER);
-	pros::Motor lhs_1 (1,1,0); //port, internal gearing (1=green,2=blue), reverse
-  	pros::Motor lhs_2 (2,1,0);
-	pros::Motor lhs_3 (3,1,1);
+	pros::Motor lhs_1 (20,1,0); //port, internal gearing (1=green,2=blue), reverse
+  	pros::Motor lhs_2 (19,1,0);
+	pros::Motor lhs_3 (18,1,1);
   	pros::Motor_Group Leftdrive ({lhs_1,lhs_2,lhs_3});
-	pros::Motor rhs_1 (4,1,1); 
-  	pros::Motor rhs_2 (5,1,1);
-	pros::Motor rhs_3 (6,1,0);
+	pros::Motor rhs_1 (21,1,1); 
+  	pros::Motor rhs_2 (10,1,1);
+	pros::Motor rhs_3 (8,1,0);
   	pros::Motor_Group Rightdrive ({lhs_1,lhs_2,lhs_3});
 
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
 
-		for (auto m : left_wheels) {
-			m.move(left);
-		}
-		for (auto m : right_wheels) {
-			m.move(right);
-		}
+		Leftdrive.move(127*(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y)/10)^3);
+		Rightdrive.move(127*(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y)/10)^3);
 
 		pros::delay(20);
 	}
