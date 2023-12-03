@@ -1,6 +1,7 @@
 // Included libraries
 #include "main.h"
 #include "list"
+#include "lemlib/api.hpp"
 // Define port numbers
 #define LEFT_WHEEL_PORTS {1, 2, 3}
 #define RIGHT_WHEEL_PORTS {4, 5, 6}
@@ -35,6 +36,22 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+	Controller master(E_CONTROLLER_MASTER);
+	pros::Motor lhs_1 (20,E_MOTOR_GEARSET_06,false); //port, internal gearing (1=green,2=blue), reverse
+  	pros::Motor lhs_2 (19,E_MOTOR_GEARSET_06,false);
+	pros::Motor lhs_3 (18,E_MOTOR_GEARSET_06,true);
+  	pros::Motor_Group Leftdrive ({lhs_1,lhs_2,lhs_3});
+	pros::Motor rhs_1 (21,E_MOTOR_GEARSET_06,true); 
+  	pros::Motor rhs_2 (10,E_MOTOR_GEARSET_06,true);
+	pros::Motor rhs_3 (8,E_MOTOR_GEARSET_06,false);
+  	pros::Motor_Group Rightdrive ({rhs_1,rhs_2,rhs_3});
+	lemlib::Drivetrain_t drivetrain {
+    &Leftdrive, // left drivetrain motors
+    &Rightdrive, // right drivetrain motors
+    10, // track width
+    3.25, // wheel diameter
+    360 // wheel rpm
+	};
 }
 
 /**
@@ -67,18 +84,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	prevcount=0
-	while (1){
-		status = pros::screen_touch_status();
-		if status.press_count!=prevcount{
-			Rightdrive.move_voltage(12000);
-			Leftdrive.move_voltage(12000);
-  			pros::delay(1000); // Move at max voltage for 1 second
-  			Rightdrive.move_voltage(0);
-			Leftdrive.move_voltage(0);
-			prevcount=status.press_count;
-		}
-	}
+	
 }
 
 /**
@@ -95,21 +101,4 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	Controller master(E_CONTROLLER_MASTER);
-	pros::Motor lhs_1 (20,1,0); //port, internal gearing (1=green,2=blue), reverse
-  	pros::Motor lhs_2 (19,1,0);
-	pros::Motor lhs_3 (18,1,1);
-  	pros::Motor_Group Leftdrive ({lhs_1,lhs_2,lhs_3});
-	pros::Motor rhs_1 (21,1,1); 
-  	pros::Motor rhs_2 (10,1,1);
-	pros::Motor rhs_3 (8,1,0);
-  	pros::Motor_Group Rightdrive ({lhs_1,lhs_2,lhs_3});
-
-	while (true) {
-
-		Leftdrive.move(127*(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y)/10)^3);
-		Rightdrive.move(127*(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y)/10)^3);
-
-		pros::delay(20);
-	}
 }
