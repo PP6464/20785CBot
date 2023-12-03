@@ -3,12 +3,19 @@
 #include "list"
 #include "lemlib/api.hpp"
 // Define port numbers
-#define LEFT_WHEEL_PORTS {1, 2, 3}
-#define RIGHT_WHEEL_PORTS {4, 5, 6}
 
 using namespace pros;
 using namespace std;
-
+void screen() {
+    // loop forever
+    while (true) {
+        lemlib::Pose pose = chassis.getPose(); // get the current position of the robot
+        pros::lcd::print(0, "x: %f", pose.x); // print the x position
+        pros::lcd::print(1, "y: %f", pose.y); // print the y position
+        pros::lcd::print(2, "heading: %f", pose.theta); // print the heading
+        pros::delay(10);
+    }
+}
 /**
  * A callback function for LLEMU's center button.
  *
@@ -24,7 +31,6 @@ void on_center_button() {
 		pros::lcd::clear_line(2);
 	}
 }
-
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -46,12 +52,41 @@ void initialize() {
 	pros::Motor rhs_3 (8,E_MOTOR_GEARSET_06,false);
   	pros::Motor_Group Rightdrive ({rhs_1,rhs_2,rhs_3});
 	lemlib::Drivetrain_t drivetrain {
-    &Leftdrive, // left drivetrain motors
-    &Rightdrive, // right drivetrain motors
-    10, // track width
-    3.25, // wheel diameter
-    360 // wheel rpm
+    	&Leftdrive, // left drivetrain motors
+    	&Rightdrive, // right drivetrain motors
+    	10, // track width
+    	3.25, // wheel diameter
+    	360 // wheel rpm
 	};
+	pros::Imu inertial_sensor(2);
+	inertial_sensor.reset();
+	lemlib::OdomSensors_t sensors {&inertial_sensor};
+	lemlib::ChassisController_t lateralController {
+    	8, // kP
+    	30, // kD
+    	1, // smallErrorRange
+    	100, // smallErrorTimeout
+    	3, // largeErrorRange
+    	500, // largeErrorTimeout
+    	5 // slew rate
+	};
+ 
+	// turning PID
+	lemlib::ChassisController_t angularController {
+    	4, // kP
+    	40, // kD
+    	1, // smallErrorRange
+    	100, // smallErrorTimeout
+    	3, // largeErrorRange
+    	500, // largeErrorTimeout
+    	40 // slew rate
+	};
+ 
+ 
+	// create the chassis
+	lemlib::Chassis chassis(drivetrain, lateralController, angularController, sensors);
+	chassis.setPose(0, 0, 0); // X: 0, Y: 0, Heading: 0
+	pros::Task screenTask(screen);
 }
 
 /**
@@ -84,7 +119,8 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	
+	chassis.moveTo(-10, 0, 1000); // drive PID tuning
+	//chassis.turnTo(0,-10,1000); // turn PID tuning
 }
 
 /**
