@@ -43,13 +43,13 @@ void initialize() {
 
 	pros::lcd::register_btn1_cb(on_center_button);
 	Controller master(E_CONTROLLER_MASTER);
-	pros::Motor lhs_1 (20,E_MOTOR_GEARSET_06,false); //port, internal gearing (1=green,2=blue), reverse
-  	pros::Motor lhs_2 (19,E_MOTOR_GEARSET_06,false);
-	pros::Motor lhs_3 (18,E_MOTOR_GEARSET_06,true);
+	pros::Motor lhs_1 (2,E_MOTOR_GEARSET_06,false); //port, internal gearing (1=green,2=blue), reverse
+  	pros::Motor lhs_2 (1,E_MOTOR_GEARSET_06,false);
+	pros::Motor lhs_3 (4,E_MOTOR_GEARSET_06,true);
   	pros::Motor_Group Leftdrive ({lhs_1,lhs_2,lhs_3});
-	pros::Motor rhs_1 (21,E_MOTOR_GEARSET_06,true); 
-  	pros::Motor rhs_2 (10,E_MOTOR_GEARSET_06,true);
-	pros::Motor rhs_3 (8,E_MOTOR_GEARSET_06,false);
+	pros::Motor rhs_1 (14,E_MOTOR_GEARSET_06,true); 
+  	pros::Motor rhs_2 (15,E_MOTOR_GEARSET_06,true);
+	pros::Motor rhs_3 (3,E_MOTOR_GEARSET_06,false);
   	pros::Motor_Group Rightdrive ({rhs_1,rhs_2,rhs_3});
 	lemlib::Drivetrain_t drivetrain {
     	&Leftdrive, // left drivetrain motors
@@ -137,4 +137,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	while true{
+		Leftdrive.move(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y)^3 * 27/10^6)
+	}
 }
