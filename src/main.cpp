@@ -141,7 +141,7 @@ void autonomous() {
  */
 void opcontrol() {
 	bool intaken=false;
-	double x=0; //ZUHEB - change this to the number of degrees
+	double x=720; //ZUHEB - change this to the number of degrees
 	while (true) {
 		Leftdrive.move_voltage(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y)^3*12000/127^3);
 		Rightdrive.move_voltage(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y)^3*12000/127^3);
