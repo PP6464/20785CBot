@@ -140,13 +140,18 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	bool intaken=false;
+	double x=0; //ZUHEB - change this to the number of degrees
 	while (true) {
 		Leftdrive.move_voltage(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y)^3*12000/127^3);
 		Rightdrive.move_voltage(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y)^3*12000/127^3);
 
 		if (master.get_digital(E_CONTROLLER_DIGITAL_R2) == 1){
 			catapult.move_voltage(12000);
-		};
+		}
+		else{
+			catapult.brake();
+		}
 		if (master.get_digital(E_CONTROLLER_DIGITAL_L1))
 		{
 			blocker.move_voltage(-12000);
@@ -158,16 +163,17 @@ void opcontrol() {
 		else{
 			blocker.brake();
 		}
-		if (master.get_digital(E_CONTROLLER_DIGITAL_R1))
-		{
-			intakeOn = !intakeOn;
+		if (master.get_digital(E_CONTROLLER_DIGITAL_R1)){
+			if (intaken){
+				intake.move_voltage(-12000);
+				pros::delay(1000); //ZUHEB - decrease this until the triball barely comes out of the robot
+			}
+			else{
+				intake.move_voltage(12000);
+			}
 		}
-		if (intakeOn)
-		{
-			intake.move_voltage(12000);
-		}
-		else{
-			intake.brake();
+		if (intake.get_actual_velocity()<50){
+			intaken=true;
 		}
 	}
 	pros::delay(20);
