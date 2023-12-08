@@ -169,7 +169,6 @@ void opcontrol() {
 		else{
 			intake.brake();
 		}
-
 	}
 	pros::delay(20);
 }
