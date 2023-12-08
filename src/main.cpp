@@ -103,11 +103,6 @@ void disabled() {}
  * starts.
  */
 void competition_initialize() {
-	Rightdrive.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-	Leftdrive.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-	blocker.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	cata.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 }
 
 /**
@@ -140,6 +135,11 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	Rightdrive.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	Leftdrive.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	blocker.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	cata.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 	bool intaken=false;
 	double x=720; //ZUHEB - change this to the number of degrees
 	while (true) {
