@@ -28,17 +28,17 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 Controller master(E_CONTROLLER_MASTER);
-pros::Motor catapult (3, E_MOTOR_GEARSET_36, false);
-pros::Motor lhs_1 (17,E_MOTOR_GEARSET_06,false); //port, internal gearing (1=green,2=blue), reverse
-pros::Motor lhs_2 (20,E_MOTOR_GEARSET_06,false);
-pros::Motor lhs_3 (19,E_MOTOR_GEARSET_06,true);
+pros::Motor catapult (3, E_MOTOR_GEARSET_36, false,E_MOTOR_ENCODER_DEGREES);
+pros::Motor lhs_1 (17,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES); //port, internal gearing (1=green,2=blue), reverse
+pros::Motor lhs_2 (20,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES);
+pros::Motor lhs_3 (19,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES);
 pros::Motor_Group Leftdrive ({lhs_1,lhs_2,lhs_3});
-pros::Motor rhs_1 (7,E_MOTOR_GEARSET_06,true); 
-pros::Motor rhs_2 (5,E_MOTOR_GEARSET_06,true);
-pros::Motor rhs_3 (6,E_MOTOR_GEARSET_06,false);
+pros::Motor rhs_1 (7,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES); 
+pros::Motor rhs_2 (5,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES);
+pros::Motor rhs_3 (6,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES);
 pros::Motor_Group Rightdrive ({rhs_1,rhs_2,rhs_3});
-pros::Motor blocker(2, E_MOTOR_GEARSET_18, false);
-pros::Motor intake(10, E_MOTOR_GEARSET_18, false);
+pros::Motor blocker(2, E_MOTOR_GEARSET_18, false,E_MOTOR_ENCODER_DEGREES);
+pros::Motor intake(10, E_MOTOR_GEARSET_18, false,E_MOTOR_ENCODER_DEGREES);
 lemlib::Drivetrain_t drivetrain {
 	&Leftdrive, // left drivetrain motors
 	&Rightdrive, // right drivetrain motors
@@ -147,6 +147,10 @@ void opcontrol() {
 		Rightdrive.move_voltage(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y)^3*12000/127^3);
 
 		if (master.get_digital(E_CONTROLLER_DIGITAL_R2) == 1){
+			catapult.move_relative(x,200);
+			pros::delay(200);
+		}
+		if (master.get_digital(E_CONTROLLER_DIGITAL_A) == 1){
 			catapult.move_voltage(12000);
 		}
 		else{
