@@ -2,6 +2,7 @@
 #include "main.h"
 #include "list"
 #include "lemlib/api.hpp"
+#include "cmath"
 // Define port numbers
 
 using namespace pros;
@@ -28,7 +29,9 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 Controller master(E_CONTROLLER_MASTER);
-pros::Motor catapult (3, E_MOTOR_GEARSET_36, false,E_MOTOR_ENCODER_DEGREES);
+pros::Motor slapper1 (3, E_MOTOR_GEARSET_36, false,E_MOTOR_ENCODER_DEGREES);
+pros::Motor slapper2 (21, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
+pros::Motor_Group slapper ({slapper1,slapper2});
 pros::Motor lhs_1 (17,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES); //port, internal gearing (1=green,2=blue), reverse
 pros::Motor lhs_2 (20,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES);
 pros::Motor lhs_3 (19,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES);
@@ -37,8 +40,10 @@ pros::Motor rhs_1 (7,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES);
 pros::Motor rhs_2 (5,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES);
 pros::Motor rhs_3 (6,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES);
 pros::Motor_Group Rightdrive ({rhs_1,rhs_2,rhs_3});
-pros::Motor blocker(2, E_MOTOR_GEARSET_18, false,E_MOTOR_ENCODER_DEGREES);
 pros::Motor intake(10, E_MOTOR_GEARSET_18, false,E_MOTOR_ENCODER_DEGREES);
+pros::ADIDigitalOut Lift (A, LOW);
+pros::ADIDigitalOut Wing (B, LOW);
+pros::ADIDigitalOut AWP (C, LOW);
 lemlib::Drivetrain_t drivetrain {
 	&Leftdrive, // left drivetrain motors
 	&Rightdrive, // right drivetrain motors
@@ -93,50 +98,28 @@ void autonomous() {
 	//chassis.turnTo(0,-10,1000); // turn PID tuning
 }
 void opcontrol() {
-	Rightdrive.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-	Leftdrive.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-	blocker.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	cata.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-	intake.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	bool intaken=false;
-	double x=720; //ZUHEB - change this to the number of degrees
-	while (true) {
-		Leftdrive.move_voltage(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y)^3*12000/127^3);
-		Rightdrive.move_voltage(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y)^3*12000/127^3);
+	Lift.set_value(LOW);
+	Wing.set_value(LOW);
+	AWP.set_value(LOW);
+	slapper.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
+	intake.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
+	Leftdrive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
+	Rightdrive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
+	bool load_or_block=false;
+	while (true){
+		if (!(load_or_block)){
+		Leftdrive.move_voltage(12000*((arctan(2*(2*(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127))-((master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127)))/((abs(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127)))))))/(2*arctan(2))));
+		Rightdrive.move_voltage(12000*((arctan(2*(2*(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127))-((master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127)))/((abs(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127)))))))/(2*arctan(2))));}
+		else{
+			Leftdrive.brake();
+			Rightdrive.brake();
+		}
+		if(master.get_digital(E_CONTROLLER_DIGITAL_A)){
+			Leftdrive.set_reversed(!(Leftdrive.is_reversed()));
+			Rightdrive.set_reversed(!(Rightdrive.is_reversed()));
+			pros::delay(500);
+		}
 
-		if (master.get_digital(E_CONTROLLER_DIGITAL_R2) == 1){
-			catapult.move_relative(x,200);
-			pros::delay(200);
-		}
-		if (master.get_digital(E_CONTROLLER_DIGITAL_A) == 1){
-			catapult.move_voltage(12000);
-		}
-		else{
-			catapult.brake();
-		}
-		if (master.get_digital(E_CONTROLLER_DIGITAL_L1))
-		{
-			blocker.move_voltage(-12000);
-		}
-		else if (master.get_digital(E_CONTROLLER_DIGITAL_L2))
-		{
-			blocker.move_voltage(12000);
-		}
-		else{
-			blocker.brake();
-		}
-		if (master.get_digital(E_CONTROLLER_DIGITAL_R1)){
-			if (intaken){
-				intake.move_voltage(-12000);
-				pros::delay(1000); //ZUHEB - decrease this until the triball barely comes out of the robot
-			}
-			else{
-				intake.move_voltage(12000);
-			}
-		}
-		if (intake.get_actual_velocity()<50){
-			intaken=true;
-		}
 	}
 	pros::delay(20);
 }
