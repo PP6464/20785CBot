@@ -44,6 +44,7 @@ pros::Motor intake(10, E_MOTOR_GEARSET_18, false,E_MOTOR_ENCODER_DEGREES);
 pros::ADIDigitalOut Lift (A, LOW);
 pros::ADIDigitalOut Wing (B, LOW);
 pros::ADIDigitalOut AWP (C, LOW);
+pros::ADIAnalogIn LineTracker (D);
 lemlib::Drivetrain_t drivetrain {
 	&Leftdrive, // left drivetrain motors
 	&Rightdrive, // right drivetrain motors
@@ -105,11 +106,12 @@ void opcontrol() {
 	intake.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 	Leftdrive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 	Rightdrive.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
+	LineTracker.calibrate(D);
 	bool load_or_block=false;
 	while (true){
 		if (!(load_or_block)){
-		Leftdrive.move_voltage(12000*((arctan(2*(2*(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127))-((master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127)))/((abs(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127)))))))/(2*arctan(2))));
-		Rightdrive.move_voltage(12000*((arctan(2*(2*(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127))-((master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127)))/((abs(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127)))))))/(2*arctan(2))));}
+			Leftdrive.move_voltage(12000*((arctan(2*(2*(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127))-((master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127)))/((abs(master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y/127)))))))/(2*arctan(2))));
+			Rightdrive.move_voltage(12000*((arctan(2*(2*(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127))-((master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127)))/((abs(master.get_analog(E_CONTROLLER_ANALOG_RIGHT_Y/127)))))))/(2*arctan(2))));}
 		else{
 			Leftdrive.brake();
 			Rightdrive.brake();
@@ -119,7 +121,35 @@ void opcontrol() {
 			Rightdrive.set_reversed(!(Rightdrive.is_reversed()));
 			pros::delay(500);
 		}
-
+		if (load_or_block){
+			if (abs(LineTracker.get_value_calibrated())>500){
+				pros::delay(500);
+				slapper.tare_position();
+				slapper.move_absolute(120,100);
+			}
+		}
+		if (master.get_digital(E_CONTROLLER_DIGITAL_R1)){
+			Lift.set_value(LOW);
+		}
+		else if (master.get_digital(E_CONTROLLER_DIGITAL_R2)){
+			Lift.set_value(HIGH);
+		}
+		if (master.get_digital(E_CONTROLLER_DIGITAL_L1)){
+			Intake.tare_position();
+			Intake.set_reversed(false);
+			Intake.move_absolute(90,100);
+		}
+		else if (master.get_digital(E_CONTROLLER_DIGITAL_L2)){
+			Intake.tare_position();
+			Intake.set_reversed(true);
+			Intake.move_absolute(90,100);
+		}
+		if (master.get_digital(E_CONTROLLER_DIGITAL_RIGHT)){
+			Wing.set_value(LOW);
+		}
+		else if (master.get_digital(E_CONTROLLER_DIGITAL_LEFT)){
+			Wing.set_value(HIGH);
+		}
 	}
 	pros::delay(20);
 }
