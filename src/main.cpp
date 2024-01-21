@@ -130,9 +130,11 @@ void opcontrol() {
 		}
 		if (master.get_digital(E_CONTROLLER_DIGITAL_R1)){
 			Lift.set_value(LOW);
+			load_or_block=false;
 		}
 		else if (master.get_digital(E_CONTROLLER_DIGITAL_R2)){
 			Lift.set_value(HIGH);
+			load_or_block=true;
 		}
 		if (master.get_digital(E_CONTROLLER_DIGITAL_L1)){
 			Intake.tare_position();
