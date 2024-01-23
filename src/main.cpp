@@ -30,17 +30,17 @@ void on_center_button() {
  */
 Controller master(E_CONTROLLER_MASTER);
 pros::Motor slapper1 (3, E_MOTOR_GEARSET_36, false,E_MOTOR_ENCODER_DEGREES);
-pros::Motor slapper2 (21, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
+pros::Motor slapper2 (7, E_MOTOR_GEARSET_18, true, E_MOTOR_ENCODER_DEGREES);
 pros::Motor_Group slapper ({slapper1,slapper2});
 pros::Motor lhs_1 (17,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES); //port, internal gearing (1=green,2=blue), reverse
 pros::Motor lhs_2 (20,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES);
 pros::Motor lhs_3 (19,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES);
 pros::Motor_Group Leftdrive ({lhs_1,lhs_2,lhs_3});
-pros::Motor rhs_1 (7,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES); 
+pros::Motor rhs_1 (21,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES); 
 pros::Motor rhs_2 (5,E_MOTOR_GEARSET_06,true,E_MOTOR_ENCODER_DEGREES);
-pros::Motor rhs_3 (6,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES);
+pros::Motor rhs_3 (10,E_MOTOR_GEARSET_06,false,E_MOTOR_ENCODER_DEGREES);
 pros::Motor_Group Rightdrive ({rhs_1,rhs_2,rhs_3});
-pros::Motor intake(10, E_MOTOR_GEARSET_18, false,E_MOTOR_ENCODER_DEGREES);
+pros::Motor intake(6, E_MOTOR_GEARSET_18, false,E_MOTOR_ENCODER_DEGREES);
 pros::ADIDigitalOut Lift (A, LOW);
 pros::ADIDigitalOut Wing (B, LOW);
 pros::ADIDigitalOut AWP (C, LOW);
